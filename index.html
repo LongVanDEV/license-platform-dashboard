@@ -1,269 +1,233 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>SecureVault — Owner Console</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    :root {
-      --bg: #0a0e1a; --bg-elevated: #0f1629; --card: #121a2e; --border: #1e2a45;
-      --text: #e8edf7; --muted: #8b9bb8; --blue: #3b82f6; --blue-bright: #60a5fa;
-      --violet: #8b5cf6; --gradient: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-      --danger: #ef4444; --ok: #22c55e;
-    }
-    * { box-sizing: border-box; }
-    body { margin: 0; font-family: "Segoe UI", ui-sans-serif, system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
-    body::before { content: ""; position: fixed; inset: 0; background: radial-gradient(ellipse 80% 50% at 20% -10%, rgba(59,130,246,0.15), transparent), radial-gradient(ellipse 60% 40% at 90% 10%, rgba(139,92,246,0.12), transparent); pointer-events: none; z-index: 0; }
-    .wrap { position: relative; z-index: 1; max-width: 960px; margin: 0 auto; padding: 28px 16px 72px; }
-    .brand { display: flex; align-items: center; gap: 14px; margin-bottom: 8px; }
-    .logo { width: 44px; height: 44px; border-radius: 12px; background: var(--gradient); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 20px rgba(59,130,246,0.35); }
-    .logo svg { width: 26px; height: 26px; }
-    h1 { font-size: 1.55rem; margin: 0; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 700; }
-    .sub { color: var(--muted); font-size: 0.9rem; margin: 0 0 24px; }
-    .badge-private { display: inline-block; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; padding: 3px 8px; border-radius: 6px; background: rgba(139,92,246,0.2); color: #c4b5fd; border: 1px solid rgba(139,92,246,0.35); margin-left: 8px; -webkit-text-fill-color: #c4b5fd; }
-    .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 20px; margin-bottom: 16px; }
-    .card h2 { font-size: 1rem; margin: 0 0 12px; font-weight: 600; }
-    label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 4px; }
-    input { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-elevated); color: var(--text); font-size: 0.95rem; margin-bottom: 12px; }
-    button { background: var(--gradient); color: #fff; border: none; border-radius: 8px; padding: 10px 16px; font-size: 0.9rem; cursor: pointer; font-weight: 600; }
-    button.secondary { background: transparent; border: 1px solid var(--border); color: var(--text); }
-    .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
-    .row > * { flex: 1; min-width: 140px; }
-    .msg { padding: 10px 12px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 12px; display: none; }
-    .msg.err { display: block; background: #450a0a; color: #fecaca; }
-    .msg.ok { display: block; background: #052e16; color: #bbf7d0; }
-    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); }
-    th { color: var(--muted); }
-    .status { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 0.75rem; background: #1e293b; }
-    .status.active { background: #14532d; color: #86efac; }
-    .mono { font-family: ui-monospace, monospace; font-size: 0.8rem; }
-    .hidden { display: none !important; }
-    .hint { font-size: 0.8rem; color: var(--muted); margin-top: 8px; line-height: 1.45; }
-    #key-reveal { background: #052e16; border: 1px solid #166534; padding: 12px; border-radius: 8px; margin-top: 12px; word-break: break-all; }
-    .role-chip { font-size: 0.75rem; padding: 2px 8px; border-radius: 6px; background: rgba(59,130,246,0.2); color: #93c5fd; margin-left: 6px; }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>SecureVault</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#070b14;--sidebar:#0c1220;--card:#121a2e;--border:#1a2438;--text:#e8edf7;--muted:#8494b0;--grad:linear-gradient(135deg,#3b82f6,#8b5cf6);--danger:#ef4444}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,Segoe UI,system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.app{display:flex;min-height:100vh}
+.sidebar{width:220px;background:var(--sidebar);border-right:1px solid var(--border);position:fixed;inset:0 auto 0 0;display:flex;flex-direction:column;z-index:20}
+.brand{display:flex;align-items:center;gap:10px;padding:16px;border-bottom:1px solid var(--border)}
+.logo{width:32px;height:32px;border-radius:8px;background:var(--grad)}
+.brand h1{font-size:.95rem;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:700}
+.tag{font-size:.6rem;color:#c4b5fd;border:1px solid rgba(139,92,246,.35);padding:1px 5px;border-radius:4px;margin-left:4px;-webkit-text-fill-color:#c4b5fd}
+.nav{padding:8px;flex:1}
+.nav button{display:block;width:100%;text-align:left;background:0;border:0;color:var(--muted);padding:10px 12px;border-radius:8px;cursor:pointer;font-size:.85rem;margin-bottom:2px}
+.nav button:hover{background:rgba(59,130,246,.08);color:var(--text)}
+.nav button.active{background:rgba(59,130,246,.15);color:#93c5fd}
+.nav .sec{font-size:.65rem;text-transform:uppercase;color:var(--muted);padding:12px 12px 4px;opacity:.7}
+.sidebar-foot{padding:12px;border-top:1px solid var(--border);font-size:.78rem;color:var(--muted)}
+.main{margin-left:220px;flex:1}
+.topbar{height:50px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:sticky;top:0;background:rgba(12,18,32,.9);z-index:10}
+.content{padding:20px;max-width:1080px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-bottom:18px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px}
+.stat .label{font-size:.7rem;color:var(--muted)}
+.stat .val{font-size:1.4rem;font-weight:700;margin-top:4px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px}
+.card h3{font-size:.9rem;margin-bottom:10px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+.row>*{flex:1;min-width:100px}
+label{display:block;font-size:.7rem;color:var(--muted);margin-bottom:3px}
+input,select{width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:#0a0f1c;color:var(--text);font-size:.85rem;margin-bottom:8px}
+button.btn{background:var(--grad);color:#fff;border:0;border-radius:8px;padding:8px 12px;font-weight:600;font-size:.8rem;cursor:pointer}
+button.ghost{background:0;border:1px solid var(--border);color:var(--text)}
+button.danger{background:var(--danger)}
+button.sm{padding:4px 8px;font-size:.7rem}
+table{width:100%;border-collapse:collapse;font-size:.8rem}
+th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--border)}
+th{color:var(--muted);font-size:.7rem}
+.badge{display:inline-block;padding:2px 7px;border-radius:999px;font-size:.65rem;background:#1e293b}
+.badge.active,.badge.pending_activation{background:#14532d;color:#86efac}
+.badge.revoked,.badge.suspended,.badge.banned{background:#7f1d1d;color:#fecaca}
+.msg{padding:8px 10px;border-radius:8px;font-size:.8rem;margin-bottom:10px;display:none}
+.msg.err{display:block;background:#450a0a;color:#fecaca}
+.msg.ok{display:block;background:#052e16;color:#bbf7d0}
+.hidden{display:none!important}
+.mono{font-family:ui-monospace,monospace;font-size:.75rem}
+.empty{text-align:center;padding:28px;color:var(--muted)}
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.login-card{width:100%;max-width:370px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px}
+.keys-box{background:#052e16;border:1px solid #166534;padding:10px;border-radius:8px;margin-top:8px;word-break:break-all}
+</style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="brand">
-      <div class="logo" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none"><path d="M12 2L4 5v6c0 5.25 3.4 10.14 8 11.5 4.6-1.36 8-6.25 8-11.5V5l-8-3z" fill="white" fill-opacity="0.95"/><rect x="9" y="10" width="6" height="5" rx="1" fill="#1e3a8a"/><path d="M12 8.5a1.75 1.75 0 00-1.75 1.75V11h3.5V10.25A1.75 1.75 0 0012 8.5z" stroke="#1e3a8a" stroke-width="1.2" fill="none"/></svg>
-      </div>
-      <div><h1>SecureVault <span class="badge-private">Private</span></h1></div>
-    </div>
-    <p class="sub">Owner console · license & application management for your software only</p>
-    <div class="card" id="config-card">
-      <h2>1. Connection</h2>
-      <p class="hint">Stored only in this browser. Never paste the service_role key here.</p>
-      <label>Supabase URL</label>
-      <input id="cfg-url" placeholder="https://xxxx.supabase.co" />
-      <label>Supabase Anon Key</label>
-      <input id="cfg-anon" placeholder="eyJ..." />
-      <label>SecureVault API URL</label>
-      <input id="cfg-api" placeholder="https://license-platform-api....workers.dev" />
-      <button type="button" id="btn-save-cfg">Save settings</button>
-      <div id="cfg-msg" class="msg"></div>
-    </div>
-    <div class="card" id="auth-card">
-      <h2>2. Sign in</h2>
-      <div id="auth-msg" class="msg"></div>
-      <div id="auth-form">
-        <label>Email</label>
-        <input id="email" type="email" autocomplete="username" />
-        <label>Password</label>
-        <input id="password" type="password" autocomplete="current-password" />
-        <div class="row">
-          <button type="button" id="btn-login">Log in</button>
-          <button type="button" id="btn-register" class="secondary">Register (user)</button>
-        </div>
-        <p class="hint">Registration creates an ordinary user account only. Owner/admin are never granted by signup.</p>
-      </div>
-      <div id="auth-user" class="hidden">
-        <p>Signed in as <strong id="user-email"></strong> <span id="role-chip" class="role-chip hidden"></span></p>
-        <button type="button" id="btn-logout" class="secondary">Log out</button>
-      </div>
-    </div>
-    <div class="card hidden" id="staff-gate">
-      <h2>Staff access required</h2>
-      <p class="hint">Only the owner and authorized admins manage applications. Bootstrap once in Supabase SQL Editor:</p>
-      <pre class="mono" style="background:var(--bg-elevated);padding:12px;border-radius:8px;border:1px solid var(--border);">SELECT public.bootstrap_owner('<your-auth-user-uuid>');</pre>
-      <p class="hint">UUID: browser console after login (session.user.id) or Supabase → Authentication → Users.</p>
-    </div>
-    <div class="card hidden" id="apps-card">
-      <h2>3. Applications</h2>
-      <div id="apps-msg" class="msg"></div>
-      <div class="row">
-        <div><label>Name</label><input id="app-name" placeholder="My Product" /></div>
-        <div><label>Slug</label><input id="app-slug" placeholder="my-product" /></div>
-        <div><button type="button" id="btn-create-app">Create app</button></div>
-      </div>
-      <table><thead><tr><th>Name</th><th>Slug</th><th>Status</th><th></th></tr></thead><tbody id="apps-tbody"></tbody></table>
-    </div>
-    <div class="card hidden" id="licenses-card">
-      <h2>4. Licenses — <span id="selected-app-name">—</span></h2>
-      <div id="lic-msg" class="msg"></div>
-      <div class="row">
-        <div><label>Max activations</label><input id="lic-max" type="number" min="1" max="100" value="1" /></div>
-        <div><label>Count</label><input id="lic-count" type="number" min="1" max="20" value="1" /></div>
-        <div><button type="button" id="btn-gen-lic">Generate key(s)</button></div>
-      </div>
-      <div id="key-reveal" class="hidden mono"></div>
-      <table><thead><tr><th>Prefix</th><th>Status</th><th>Activations</th><th>Created</th></tr></thead><tbody id="lic-tbody"></tbody></table>
-    </div>
-  </div>
-  <script>
-    const LS = { url: "sv_supabase_url", anon: "sv_supabase_anon", api: "sv_api_url" };
-    function loadCfg() {
-      document.getElementById("cfg-url").value = localStorage.getItem(LS.url) || "https://zuhrfvglwrirhlngihsd.supabase.co";
-      document.getElementById("cfg-anon").value = localStorage.getItem(LS.anon) || "";
-      document.getElementById("cfg-api").value = localStorage.getItem(LS.api) || "https://license-platform-api.phamvanlongtbpt162.workers.dev";
-    }
-    function saveCfg() {
-      localStorage.setItem(LS.url, document.getElementById("cfg-url").value.trim());
-      localStorage.setItem(LS.anon, document.getElementById("cfg-anon").value.trim());
-      localStorage.setItem(LS.api, document.getElementById("cfg-api").value.trim().replace(/\/$/, ""));
-      show("cfg-msg", "ok", "Saved in this browser.");
-      initClient();
-    }
-    function cfg() {
-      return { url: localStorage.getItem(LS.url) || "", anon: localStorage.getItem(LS.anon) || "", api: localStorage.getItem(LS.api) || "" };
-    }
-    let supabase = null, session = null, selectedApp = null;
-    function initClient() {
-      const c = cfg();
-      supabase = c.url && c.anon ? window.supabase.createClient(c.url, c.anon) : null;
-    }
-    function show(id, type, text) { const el = document.getElementById(id); el.className = "msg " + type; el.textContent = text; }
-    function clearMsg(id) { const el = document.getElementById(id); el.className = "msg"; el.textContent = ""; }
-    async function api(path, options = {}) {
-      const c = cfg();
-      if (!c.api) throw new Error("Set API URL in settings");
-      const headers = { "Content-Type": "application/json", ...(options.headers || {}) };
-      if (session && session.access_token) headers.Authorization = "Bearer " + session.access_token;
-      const res = await fetch(c.api + path, { ...options, headers });
-      const body = await res.json().catch(function () { return {}; });
-      if (!res.ok) {
-        const msg = (body.error && body.error.message) || body.message || res.statusText;
-        throw new Error(((body.error && body.error.code) || "ERROR") + ": " + msg);
-      }
-      return body;
-    }
-    async function refreshSessionUI() {
-      if (!supabase) return;
-      const { data } = await supabase.auth.getSession();
-      session = data.session;
-      if (session) {
-        document.getElementById("auth-form").classList.add("hidden");
-        document.getElementById("auth-user").classList.remove("hidden");
-        document.getElementById("user-email").textContent = session.user.email || session.user.id;
-        console.info("[SecureVault] user id:", session.user.id);
-        await probeStaff();
-      } else {
-        document.getElementById("auth-form").classList.remove("hidden");
-        document.getElementById("auth-user").classList.add("hidden");
-        document.getElementById("apps-card").classList.add("hidden");
-        document.getElementById("licenses-card").classList.add("hidden");
-        document.getElementById("staff-gate").classList.add("hidden");
-        document.getElementById("role-chip").classList.add("hidden");
-      }
-    }
-    async function probeStaff() {
-      try {
-        await api("/v1/owner/applications");
-        document.getElementById("staff-gate").classList.add("hidden");
-        document.getElementById("apps-card").classList.remove("hidden");
-        const chip = document.getElementById("role-chip"); chip.textContent = "staff"; chip.classList.remove("hidden");
-        await loadApps();
-      } catch (e) {
-        document.getElementById("apps-card").classList.add("hidden");
-        document.getElementById("licenses-card").classList.add("hidden");
-        document.getElementById("staff-gate").classList.remove("hidden");
-        const chip = document.getElementById("role-chip"); chip.textContent = "user"; chip.classList.remove("hidden");
-      }
-    }
-    async function login() {
-      clearMsg("auth-msg");
-      if (!supabase) { show("auth-msg", "err", "Save Supabase URL + Anon key first."); return; }
-      const { error } = await supabase.auth.signInWithPassword({ email: document.getElementById("email").value.trim(), password: document.getElementById("password").value });
-      if (error) show("auth-msg", "err", error.message); else { show("auth-msg", "ok", "Logged in."); await refreshSessionUI(); }
-    }
-    async function register() {
-      clearMsg("auth-msg");
-      if (!supabase) { show("auth-msg", "err", "Save settings first."); return; }
-      const { error } = await supabase.auth.signUp({ email: document.getElementById("email").value.trim(), password: document.getElementById("password").value });
-      if (error) show("auth-msg", "err", error.message);
-      else show("auth-msg", "ok", "Registered as user. Owner must bootstrap separately.");
-    }
-    async function logout() { if (supabase) await supabase.auth.signOut(); session = null; selectedApp = null; await refreshSessionUI(); }
-    async function loadApps() {
-      clearMsg("apps-msg");
-      try {
-        const { data } = await api("/v1/owner/applications");
-        const tbody = document.getElementById("apps-tbody"); tbody.innerHTML = "";
-        (data || []).forEach(function (app) {
-          const tr = document.createElement("tr");
-          tr.innerHTML = "<td>" + esc(app.name) + "</td><td class=\"mono\">" + esc(app.slug) + "</td><td><span class=\"status " + app.status + "\">" + app.status + "</span></td><td><button type=\"button\" class=\"secondary\" data-id=\"" + app.id + "\" data-name=\"" + esc(app.name) + "\">Licenses</button></td>";
-          tbody.appendChild(tr);
-        });
-        tbody.querySelectorAll("button[data-id]").forEach(function (btn) {
-          btn.addEventListener("click", function () { selectApp(btn.dataset.id, btn.dataset.name); });
-        });
-      } catch (e) { show("apps-msg", "err", e.message); }
-    }
-    async function createApp() {
-      clearMsg("apps-msg");
-      const name = document.getElementById("app-name").value.trim();
-      const slug = document.getElementById("app-slug").value.trim();
-      if (!name) { show("apps-msg", "err", "Name required"); return; }
-      try {
-        await api("/v1/owner/applications", { method: "POST", body: JSON.stringify({ name: name, slug: slug || undefined }) });
-        show("apps-msg", "ok", "Created."); document.getElementById("app-name").value = ""; document.getElementById("app-slug").value = "";
-        await loadApps();
-      } catch (e) { show("apps-msg", "err", e.message); }
-    }
-    async function selectApp(id, name) {
-      selectedApp = { id: id, name: name };
-      document.getElementById("selected-app-name").textContent = name;
-      document.getElementById("licenses-card").classList.remove("hidden");
-      document.getElementById("key-reveal").classList.add("hidden");
-      await loadLicenses();
-    }
-    async function loadLicenses() {
-      clearMsg("lic-msg"); if (!selectedApp) return;
-      try {
-        const { data } = await api("/v1/owner/applications/" + selectedApp.id + "/licenses");
-        const tbody = document.getElementById("lic-tbody"); tbody.innerHTML = "";
-        (data || []).forEach(function (lic) {
-          const tr = document.createElement("tr");
-          tr.innerHTML = "<td class=\"mono\">" + esc(lic.key_prefix) + "…</td><td><span class=\"status " + lic.status + "\">" + lic.status + "</span></td><td>" + lic.current_activations + " / " + lic.max_activations + "</td><td>" + new Date(lic.created_at).toLocaleString() + "</td>";
-          tbody.appendChild(tr);
-        });
-      } catch (e) { show("lic-msg", "err", e.message); }
-    }
-    async function generateLicenses() {
-      clearMsg("lic-msg"); if (!selectedApp) return;
-      try {
-        const { data } = await api("/v1/owner/licenses", {
-          method: "POST",
-          body: JSON.stringify({ application_id: selectedApp.id, max_activations: parseInt(document.getElementById("lic-max").value, 10) || 1, count: parseInt(document.getElementById("lic-count").value, 10) || 1 }),
-        });
-        const keys = (data || []).map(function (l) { return l.key; }).filter(Boolean);
-        const box = document.getElementById("key-reveal"); box.classList.remove("hidden");
-        box.innerHTML = "<strong>Copy these keys now — shown only once:</strong><br/>" + keys.map(esc).join("<br/>");
-        show("lic-msg", "ok", "Generated " + keys.length + " key(s)."); await loadLicenses();
-      } catch (e) { show("lic-msg", "err", e.message); }
-    }
-    function esc(s) { return String(s).replace(/&/g, "&").replace(/</g, "<").replace(/>/g, ">").replace(/"/g, """); }
-    loadCfg(); initClient();
-    document.getElementById("btn-save-cfg").onclick = saveCfg;
-    document.getElementById("btn-login").onclick = login;
-    document.getElementById("btn-register").onclick = register;
-    document.getElementById("btn-logout").onclick = logout;
-    document.getElementById("btn-create-app").onclick = createApp;
-    document.getElementById("btn-gen-lic").onclick = generateLicenses;
-    refreshSessionUI();
-  </script>
+<div id="screen-login" class="login-wrap">
+<div class="login-card">
+<h2 style="text-align:center;margin-bottom:4px">SecureVault</h2>
+<p style="text-align:center;color:var(--muted);font-size:.82rem;margin-bottom:16px">Owner console</p>
+<div id="login-msg" class="msg"></div>
+<div id="setup-box" class="hidden">
+<p style="font-size:.8rem;color:var(--muted);margin-bottom:8px">Paste Supabase <strong>anon</strong> key once (not service_role).</p>
+<label>Anon key</label>
+<input id="setup-anon" placeholder="eyJ..."/>
+<button class="btn" type="button" id="btn-save-anon" style="width:100%;margin-bottom:10px">Save & continue</button>
+</div>
+<div id="login-form">
+<label>Email</label><input id="email" type="email"/>
+<label>Password</label><input id="password" type="password"/>
+<div class="row">
+<button class="btn" type="button" id="btn-login">Sign in</button>
+<button class="btn ghost" type="button" id="btn-register">Register</button>
+</div>
+</div>
+</div>
+</div>
+<div id="screen-app" class="app hidden">
+<aside class="sidebar">
+<div class="brand"><div class="logo"></div><h1>SecureVault<span class="tag">Private</span></h1></div>
+<nav class="nav">
+<div class="sec">Manage</div>
+<button type="button" data-view="overview" class="active">Overview</button>
+<button type="button" data-view="apps">Applications</button>
+<button type="button" data-view="licenses">Licenses</button>
+<button type="button" data-view="devices">Devices</button>
+<button type="button" data-view="plans">Plans</button>
+<div class="sec">Platform</div>
+<button type="button" data-view="users">Users</button>
+<button type="button" data-view="audit">Audit log</button>
+<button type="button" data-view="settings">Settings</button>
+</nav>
+<div class="sidebar-foot"><div id="sb-email">—</div>
+<button class="btn ghost sm" type="button" id="btn-logout" style="margin-top:8px">Sign out</button></div>
+</aside>
+<div class="main">
+<div class="topbar"><h2 id="page-title">Overview</h2><span id="role-badge" class="badge">—</span></div>
+<div class="content">
+<div id="gate-msg" class="msg"></div>
+<section id="view-overview" class="view"><div class="cards" id="stat-cards"></div></section>
+<section id="view-apps" class="view hidden">
+<div class="card"><h3>Create application</h3><div id="apps-msg" class="msg"></div>
+<div class="row"><div><label>Name</label><input id="app-name"/></div>
+<div><label>Slug</label><input id="app-slug"/></div>
+<div><button class="btn" type="button" id="btn-create-app">Create</button></div></div></div>
+<div class="card"><h3>Applications</h3>
+<table><thead><tr><th>Name</th><th>Slug</th><th>Status</th><th></th></tr></thead><tbody id="apps-tbody"></tbody></table>
+<div id="apps-empty" class="empty hidden">No applications.</div></div>
+</section>
+<section id="view-licenses" class="view hidden">
+<div class="card"><h3>Generate keys</h3><div id="lic-msg" class="msg"></div>
+<div class="row">
+<div><label>App</label><select id="lic-app"></select></div>
+<div><label>Max activations</label><input id="lic-max" type="number" value="1" min="1"/></div>
+<div><label>Count</label><input id="lic-count" type="number" value="1" min="1"/></div>
+<div><button class="btn" type="button" id="btn-gen-lic">Generate</button></div>
+</div>
+<div id="key-reveal" class="keys-box hidden mono"></div></div>
+<div class="card"><h3>Licenses</h3>
+<table><thead><tr><th>Prefix</th><th>Status</th><th>Activations</th><th>Created</th><th></th></tr></thead><tbody id="lic-tbody"></tbody></table>
+<div id="lic-empty" class="empty hidden">No licenses.</div></div>
+</section>
+<section id="view-devices" class="view hidden">
+<div class="card"><h3>Devices</h3><div id="dev-msg" class="msg"></div>
+<table><thead><tr><th>Device</th><th>License</th><th>Activated</th><th>Status</th><th></th></tr></thead><tbody id="dev-tbody"></tbody></table>
+<div id="dev-empty" class="empty hidden">No devices.</div></div>
+</section>
+<section id="view-plans" class="view hidden">
+<div class="card"><h3>Create plan</h3><div id="plan-msg" class="msg"></div>
+<div class="row">
+<div><label>App</label><select id="plan-app"></select></div>
+<div><label>Name</label><input id="plan-name"/></div>
+<div><label>Duration</label><select id="plan-dur"><option value="lifetime">Lifetime</option><option value="monthly">Monthly</option><option value="annual">Annual</option></select></div>
+<div><button class="btn" type="button" id="btn-create-plan">Create</button></div>
+</div></div>
+<div class="card"><h3>Plans</h3>
+<table><thead><tr><th>Name</th><th>Duration</th><th>Devices</th></tr></thead><tbody id="plan-tbody"></tbody></table>
+<div id="plan-empty" class="empty hidden">No plans.</div></div>
+</section>
+<section id="view-users" class="view hidden">
+<div class="card"><h3>Users</h3><div id="users-msg" class="msg"></div>
+<table><thead><tr><th>User</th><th>Status</th><th>Roles</th><th></th></tr></thead><tbody id="users-tbody"></tbody></table>
+<div id="users-empty" class="empty hidden">No users.</div></div>
+</section>
+<section id="view-audit" class="view hidden">
+<div class="card"><h3>Audit</h3>
+<table><thead><tr><th>When</th><th>Action</th><th>Kind</th></tr></thead><tbody id="audit-tbody"></tbody></table>
+<div id="audit-empty" class="empty hidden">No events.</div></div>
+</section>
+<section id="view-settings" class="view hidden">
+<div class="card"><h3>Owner bootstrap</h3>
+<p style="font-size:.8rem;color:var(--muted);margin-bottom:8px">Run once in Supabase SQL Editor:</p>
+<pre class="mono" id="bootstrap-sql" style="background:#0a0f1c;padding:10px;border-radius:8px;border:1px solid var(--border)">SELECT public.bootstrap_owner('UUID');</pre>
+<p style="font-size:.78rem;color:var(--muted);margin-top:8px">Your id: <span class="mono" id="settings-uid">—</span></p>
+</div>
+<div class="card"><h3>Connection</h3>
+<p class="mono" style="font-size:.75rem;color:var(--muted)" id="settings-api"></p>
+<button class="btn ghost sm" type="button" id="btn-clear-anon" style="margin-top:10px">Clear local anon key</button>
+</div>
+</section>
+</div></div></div>
+<script>
+const API="https://license-platform-api.phamvanlongtbpt162.workers.dev";
+const SB_URL="https://zuhrfvglwrirhlngihsd.supabase.co";
+const LS_ANON="sv_anon_key";
+let supabase=null,session=null,me=null,appsCache=[];
+function show(id,t,x){const e=document.getElementById(id);if(e){e.className="msg "+t;e.textContent=x}}
+function clearMsg(id){const e=document.getElementById(id);if(e){e.className="msg";e.textContent=""}}
+function esc(s){return String(s??"").replace(/&/g,"&").replace(/</g,"<").replace(/>/g,">").replace(/"/g,""")}
+function getAnon(){return localStorage.getItem(LS_ANON)||""}
+async function loadPublicConfig(){try{const r=await fetch(API+"/v1/public/config");if(r.ok){const b=await r.json();if(b.data&&b.data.supabase_anon_key)localStorage.setItem(LS_ANON,b.data.supabase_anon_key)}}catch(_){}}
+function initClient(){const anon=getAnon();if(!anon){document.getElementById("setup-box").classList.remove("hidden");document.getElementById("login-form").classList.add("hidden");return false}
+document.getElementById("setup-box").classList.add("hidden");document.getElementById("login-form").classList.remove("hidden");
+supabase=window.supabase.createClient(SB_URL,anon);return true}
+async function api(path,opts={}){const headers={"Content-Type":"application/json",...(opts.headers||{})};if(session?.access_token)headers.Authorization="Bearer "+session.access_token;
+const res=await fetch(API+path,{...opts,headers});const body=await res.json().catch(()=>({}));
+if(!res.ok)throw new Error(((body.error&&body.error.code)||"ERROR")+": "+((body.error&&body.error.message)||res.statusText));return body}
+function setView(name){document.querySelectorAll(".view").forEach(v=>v.classList.add("hidden"));const el=document.getElementById("view-"+name);if(el)el.classList.remove("hidden");
+document.querySelectorAll(".nav button[data-view]").forEach(b=>b.classList.toggle("active",b.dataset.view===name));
+const titles={overview:"Overview",apps:"Applications",licenses:"Licenses",devices:"Devices",plans:"Plans",users:"Users",audit:"Audit log",settings:"Settings"};
+document.getElementById("page-title").textContent=titles[name]||name;
+if(name==="overview")loadOverview();if(name==="apps")loadApps();if(name==="licenses"){fillApps();loadLicenses()}
+if(name==="devices")loadDevices();if(name==="plans"){fillApps();loadPlans()}
+if(name==="users")loadUsers();if(name==="audit")loadAudit();
+if(name==="settings"){document.getElementById("settings-uid").textContent=me?.id||"—";document.getElementById("bootstrap-sql").textContent="SELECT public.bootstrap_owner('"+(me?.id||"UUID")+"');";document.getElementById("settings-api").textContent=API}}
+async function enterApp(){document.getElementById("screen-login").classList.add("hidden");document.getElementById("screen-app").classList.remove("hidden");
+document.getElementById("sb-email").textContent=session.user.email||session.user.id;
+try{const{data}=await api("/v1/owner/me");me=data;document.getElementById("role-badge").textContent=data.is_owner?"owner":data.is_staff?"admin":"user";
+if(!data.is_staff)show("gate-msg","err","Staff required. Bootstrap owner in Settings.");else clearMsg("gate-msg")}
+catch(err){me={id:session.user.id,is_staff:false};document.getElementById("role-badge").textContent="user";show("gate-msg","err",err.message)}
+setView("overview")}
+async function loadOverview(){const box=document.getElementById("stat-cards");box.innerHTML="<div class='stat'><div class='label'>Loading…</div></div>";
+try{const{data}=await api("/v1/owner/overview");const items=[["Apps",data.applications],["Licenses",data.licenses],["Active",data.licenses_active],["Revoked",data.licenses_revoked],["Devices",data.devices_active],["Users",data.users]];
+box.innerHTML=items.map(([l,v])=>"<div class='stat'><div class='label'>"+esc(l)+"</div><div class='val'>"+esc(v)+"</div></div>").join("")}
+catch(err){try{const a=await api("/v1/owner/applications");appsCache=a.data||[];let n=0;for(const app of appsCache){try{const l=await api("/v1/owner/applications/"+app.id+"/licenses");n+=(l.data||[]).length}catch(_){}}
+box.innerHTML="<div class='stat'><div class='label'>Apps</div><div class='val'>"+appsCache.length+"</div></div><div class='stat'><div class='label'>Licenses</div><div class='val'>"+n+"</div></div>"}
+catch(e2){box.innerHTML="<div class='msg err' style='display:block'>"+esc(err.message)+"</div>"}}}
+async function loadApps(){clearMsg("apps-msg");try{const{data}=await api("/v1/owner/applications");appsCache=data||[];const tb=document.getElementById("apps-tbody");tb.innerHTML="";
+document.getElementById("apps-empty").classList.toggle("hidden",appsCache.length>0);
+appsCache.forEach(a=>{const tr=document.createElement("tr");tr.innerHTML="<td>"+esc(a.name)+"</td><td class='mono'>"+esc(a.slug)+"</td><td><span class='badge "+esc(a.status)+"'>"+esc(a.status)+"</span></td><td><button class='btn ghost sm' data-id='"+esc(a.id)+"'>Licenses</button></td>";tb.appendChild(tr)});
+tb.querySelectorAll("button[data-id]").forEach(b=>b.onclick=()=>{document.getElementById("lic-app").value=b.dataset.id;setView("licenses")})}catch(e){show("apps-msg","err",e.message)}}
+function fillApps(){["lic-app","plan-app"].forEach(id=>{const s=document.getElementById(id);if(!s)return;const c=s.value;s.innerHTML=appsCache.map(a=>"<option value='"+esc(a.id)+"'>"+esc(a.name)+"</option>").join("")||"<option value=''>—</option>";if(c)s.value=c})}
+async function loadLicenses(){clearMsg("lic-msg");const tb=document.getElementById("lic-tbody");tb.innerHTML="";try{let rows=[];try{const r=await api("/v1/owner/licenses");rows=r.data||[]}catch(_){if(!appsCache.length){const a=await api("/v1/owner/applications");appsCache=a.data||[]}for(const a of appsCache){const r=await api("/v1/owner/applications/"+a.id+"/licenses");(r.data||[]).forEach(l=>rows.push(l))}}
+document.getElementById("lic-empty").classList.toggle("hidden",rows.length>0);
+rows.forEach(l=>{const tr=document.createElement("tr");tr.innerHTML="<td class='mono'>"+esc(l.key_prefix)+"…</td><td><span class='badge "+esc(l.status)+"'>"+esc(l.status)+"</span></td><td>"+esc(l.current_activations)+"/"+esc(l.max_activations)+"</td><td>"+(l.created_at?new Date(l.created_at).toLocaleString():"—")+"</td><td>"+(l.status!=="revoked"?"<button class='btn danger sm' data-rev='"+esc(l.id)+"'>Revoke</button> ":"")+"<button class='btn ghost sm' data-rst='"+esc(l.id)+"'>Reset</button></td>";tb.appendChild(tr)});
+tb.querySelectorAll("[data-rev]").forEach(b=>b.onclick=async()=>{if(!confirm("Revoke?"))return;try{await api("/v1/owner/licenses/"+b.dataset.rev+"/revoke",{method:"POST",body:"{}"});loadLicenses()}catch(e){show("lic-msg","err",e.message)}});
+tb.querySelectorAll("[data-rst]").forEach(b=>b.onclick=async()=>{try{await api("/v1/owner/licenses/"+b.dataset.rst+"/reset-devices",{method:"POST",body:"{}"});show("lic-msg","ok","Reset");loadLicenses()}catch(e){show("lic-msg","err",e.message)}})}catch(e){show("lic-msg","err",e.message)}}
+async function loadDevices(){clearMsg("dev-msg");try{const{data}=await api("/v1/owner/devices");const rows=data||[];const tb=document.getElementById("dev-tbody");tb.innerHTML="";document.getElementById("dev-empty").classList.toggle("hidden",rows.length>0);
+rows.forEach(d=>{const on=!d.deactivated_at;const tr=document.createElement("tr");tr.innerHTML="<td class='mono'>"+esc(d.device_name||d.device_id)+"</td><td class='mono'>"+esc((d.license_id||"").slice(0,8))+"…</td><td>"+(d.activated_at?new Date(d.activated_at).toLocaleString():"—")+"</td><td><span class='badge "+(on?"active":"revoked")+"'>"+(on?"active":"off")+"</span></td><td>"+(on?"<button class='btn danger sm' data-d='"+esc(d.id)+"'>Off</button>":"")+"</td>";tb.appendChild(tr)});
+tb.querySelectorAll("[data-d]").forEach(b=>b.onclick=async()=>{try{await api("/v1/owner/devices/"+b.dataset.d+"/deactivate",{method:"POST",body:"{}"});loadDevices()}catch(e){show("dev-msg","err",e.message)}})}catch(e){show("dev-msg","err",e.message)}}
+async function loadPlans(){clearMsg("plan-msg");try{const{data}=await api("/v1/owner/plans");const rows=data||[];const tb=document.getElementById("plan-tbody");tb.innerHTML="";document.getElementById("plan-empty").classList.toggle("hidden",rows.length>0);
+rows.forEach(p=>{const tr=document.createElement("tr");tr.innerHTML="<td>"+esc(p.name)+"</td><td>"+esc(p.duration_unit)+"</td><td>"+esc(p.device_limit)+"</td>";tb.appendChild(tr)})}catch(e){show("plan-msg","err",e.message)}}
+async function loadUsers(){clearMsg("users-msg");try{const{data}=await api("/v1/owner/users");const rows=data||[];const tb=document.getElementById("users-tbody");tb.innerHTML="";document.getElementById("users-empty").classList.toggle("hidden",rows.length>0);
+rows.forEach(u=>{const tr=document.createElement("tr");tr.innerHTML="<td>"+esc(u.display_name||u.username||u.id.slice(0,8))+"</td><td><span class='badge "+esc(u.status)+"'>"+esc(u.status)+"</span></td><td class='mono'>"+esc((u.roles||[]).join(", "))+"</td><td>"+(u.status==="active"?"<button class='btn danger sm' data-s='"+esc(u.id)+"'>Suspend</button>":"<button class='btn ghost sm' data-r='"+esc(u.id)+"'>Restore</button>")+"</td>";tb.appendChild(tr)});
+tb.querySelectorAll("[data-s]").forEach(b=>b.onclick=async()=>{try{await api("/v1/owner/users/"+b.dataset.s+"/suspend",{method:"POST",body:"{}"});loadUsers()}catch(e){show("users-msg","err",e.message)}});
+tb.querySelectorAll("[data-r]").forEach(b=>b.onclick=async()=>{try{await api("/v1/owner/users/"+b.dataset.r+"/restore",{method:"POST",body:"{}"});loadUsers()}catch(e){show("users-msg","err",e.message)}})}catch(e){show("users-msg","err",e.message)}}
+async function loadAudit(){try{const{data}=await api("/v1/owner/audit-logs");const rows=data||[];const tb=document.getElementById("audit-tbody");tb.innerHTML="";document.getElementById("audit-empty").classList.toggle("hidden",rows.length>0);
+rows.forEach(a=>{const tr=document.createElement("tr");tr.innerHTML="<td>"+(a.created_at?new Date(a.created_at).toLocaleString():"—")+"</td><td>"+esc(a.action)+"</td><td>"+esc(a.kind||"—")+"</td>";tb.appendChild(tr)})}catch(e){document.getElementById("audit-empty").classList.remove("hidden")}}
+document.getElementById("btn-save-anon").onclick=()=>{const v=document.getElementById("setup-anon").value.trim();if(v.length<20){show("login-msg","err","Invalid key");return}localStorage.setItem(LS_ANON,v);clearMsg("login-msg");initClient()};
+document.getElementById("btn-login").onclick=async()=>{clearMsg("login-msg");if(!initClient())return;const{error}=await supabase.auth.signInWithPassword({email:document.getElementById("email").value.trim(),password:document.getElementById("password").value});if(error)show("login-msg","err",error.message);else{const{data}=await supabase.auth.getSession();session=data.session;await enterApp()}};
+document.getElementById("btn-register").onclick=async()=>{clearMsg("login-msg");if(!initClient())return;const{error}=await supabase.auth.signUp({email:document.getElementById("email").value.trim(),password:document.getElementById("password").value});if(error)show("login-msg","err",error.message);else show("login-msg","ok","Registered as user. Owner must bootstrap separately.")};
+document.getElementById("btn-logout").onclick=async()=>{if(supabase)await supabase.auth.signOut();session=null;me=null;document.getElementById("screen-app").classList.add("hidden");document.getElementById("screen-login").classList.remove("hidden")};
+document.querySelectorAll(".nav button[data-view]").forEach(b=>b.onclick=()=>setView(b.dataset.view));
+document.getElementById("btn-create-app").onclick=async()=>{clearMsg("apps-msg");try{await api("/v1/owner/applications",{method:"POST",body:JSON.stringify({name:document.getElementById("app-name").value.trim(),slug:document.getElementById("app-slug").value.trim()||undefined})});show("apps-msg","ok","Created");document.getElementById("app-name").value="";await loadApps()}catch(e){show("apps-msg","err",e.message)}};
+document.getElementById("btn-gen-lic").onclick=async()=>{clearMsg("lic-msg");try{const{data}=await api("/v1/owner/licenses",{method:"POST",body:JSON.stringify({application_id:document.getElementById("lic-app").value,max_activations:+document.getElementById("lic-max").value||1,count:+document.getElementById("lic-count").value||1})});const keys=(data||[]).map(l=>l.key).filter(Boolean);const box=document.getElementById("key-reveal");box.classList.remove("hidden");box.innerHTML="<strong>Copy now — once only</strong><br/>"+keys.map(esc).join("<br/>");show("lic-msg","ok","Generated "+keys.length);await loadLicenses()}catch(e){show("lic-msg","err",e.message)}};
+document.getElementById("btn-create-plan").onclick=async()=>{clearMsg("plan-msg");try{await api("/v1/owner/plans",{method:"POST",body:JSON.stringify({application_id:document.getElementById("plan-app").value,name:document.getElementById("plan-name").value.trim(),duration_unit:document.getElementById("plan-dur").value})});show("plan-msg","ok","Created");loadPlans()}catch(e){show("plan-msg","err",e.message)}};
+document.getElementById("btn-clear-anon").onclick=()=>{localStorage.removeItem(LS_ANON);location.reload()};
+(async()=>{await loadPublicConfig();initClient();if(!supabase)return;const{data}=await supabase.auth.getSession();if(data.session){session=data.session;await enterApp()}})();
+</script>
 </body>
 </html>
