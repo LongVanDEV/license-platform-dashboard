@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>License Platform — Developer</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --bg: #0b0f17;
+      --card: #121826;
+      --border: #1e293b;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --danger: #ef4444;
+      --ok: #22c55e;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    .wrap { max-width: 960px; margin: 0 auto; padding: 24px 16px 64px; }
+    h1 { font-size: 1.5rem; margin: 0 0 4px; }
+    .sub { color: var(--muted); font-size: 0.9rem; margin-bottom: 24px; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    .card h2 { font-size: 1rem; margin: 0 0 12px; }
+    label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 4px; }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 0.95rem;
+      margin-bottom: 12px;
+    }
+    button {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    button:hover { background: var(--accent-hover); }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    button.secondary { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    button.danger { background: var(--danger); }
+    .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
+    .row > * { flex: 1; min-width: 140px; }
+    .msg { padding: 10px 12px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 12px; display: none; }
+    .msg.err { display: block; background: #450a0a; color: #fecaca; }
+    .msg.ok { display: block; background: #052e16; color: #bbf7d0; }
+    .msg.info { display: block; background: #0c1a2e; color: #bfdbfe; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+    th { color: var(--muted); font-weight: 500; }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      background: #1e293b;
+    }
+    .badge.active { background: #14532d; color: #86efac; }
+    .badge.pending_activation { background: #713f12; color: #fde68a; }
+    .mono { font-family: ui-monospace, monospace; font-size: 0.8rem; }
+    .hidden { display: none !important; }
+    .config-hint { font-size: 0.8rem; color: var(--muted); margin-top: 8px; }
+    a { color: var(--accent); }
+    #key-reveal {
+      background: #052e16;
+      border: 1px solid #166534;
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 12px;
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>License Platform</h1>
+    <p class="sub">Developer dashboard · web only</p>
+
+    <div class="card" id="config-card">
+      <h2>1. Connection settings</h2>
+      <p class="config-hint">Values are stored only in this browser (localStorage). Never put the service_role key here.</p>
+      <label>Supabase URL</label>
+      <input id="cfg-url" placeholder="https://xxxx.supabase.co" />
+      <label>Supabase Anon Key</label>
+      <input id="cfg-anon" placeholder="eyJ..." />
+      <label>API Worker URL</label>
+      <input id="cfg-api" placeholder="https://license-platform-api.YOUR_SUBDOMAIN.workers.dev" />
+      <button type="button" id="btn-save-cfg">Save settings</button>
+      <div id="cfg-msg" class="msg"></div>
+    </div>
+
+    <div class="card" id="auth-card">
+      <h2>2. Sign in</h2>
+      <div id="auth-msg" class="msg"></div>
+      <div id="auth-form">
+        <label>Email</label>
+        <input id="email" type="email" autocomplete="username" />
+        <label>Password</label>
+        <input id="password" type="password" autocomplete="current-password" />
+        <div class="row">
+          <button type="button" id="btn-login">Log in</button>
+          <button type="button" id="btn-register" class="secondary">Register</button>
+        </div>
+      </div>
+      <div id="auth-user" class="hidden">
+        <p>Signed in as <strong id="user-email"></strong></p>
+        <button type="button" id="btn-logout" class="secondary">Log out</button>
+      </div>
+    </div>
+
+    <div class="card hidden" id="apps-card">
+      <h2>3. Applications</h2>
+      <div id="apps-msg" class="msg"></div>
+      <div class="row">
+        <div>
+          <label>Name</label>
+          <input id="app-name" placeholder="My Game" />
+        </div>
+        <div>
+          <label>Slug (optional)</label>
+          <input id="app-slug" placeholder="my-game" />
+        </div>
+        <div>
+          <button type="button" id="btn-create-app">Create app</button>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Name</th><th>Slug</th><th>Status</th><th></th></tr>
+        </thead>
+        <tbody id="apps-tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="card hidden" id="licenses-card">
+      <h2>4. Licenses — <span id="selected-app-name">—</span></h2>
+      <div id="lic-msg" class="msg"></div>
+      <div class="row">
+        <div>
+          <label>Max activations</label>
+          <input id="lic-max" type="number" min="1" max="100" value="1" />
+        </div>
+        <div>
+          <label>Count</label>
+          <input id="lic-count" type="number" min="1" max="20" value="1" />
+        </div>
+        <div>
+          <button type="button" id="btn-gen-lic">Generate key(s)</button>
+        </div>
+      </div>
+      <div id="key-reveal" class="hidden mono"></div>
+      <table>
+        <thead>
+          <tr><th>Prefix</th><th>Status</th><th>Activations</th><th>Created</th></tr>
+        </thead>
+        <tbody id="lic-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const LS = {
+      url: "lp_supabase_url",
+      anon: "lp_supabase_anon",
+      api: "lp_api_url",
+    };
+
+    function loadCfg() {
+      document.getElementById("cfg-url").value = localStorage.getItem(LS.url) || "https://zuhrfvglwrirhlngihsd.supabase.co";
+      document.getElementById("cfg-anon").value = localStorage.getItem(LS.anon) || "";
+      document.getElementById("cfg-api").value = localStorage.getItem(LS.api) || "https://license-platform-api.phamvanlongtbpt162.workers.dev";
+    }
+
+    function saveCfg() {
+      localStorage.setItem(LS.url, document.getElementById("cfg-url").value.trim());
+      localStorage.setItem(LS.anon, document.getElementById("cfg-anon").value.trim());
+      localStorage.setItem(LS.api, document.getElementById("cfg-api").value.trim().replace(/\/$/, ""));
+      show("cfg-msg", "ok", "Saved in this browser.");
+      initClient();
+    }
+
+    function cfg() {
+      return {
+        url: localStorage.getItem(LS.url) || "",
+        anon: localStorage.getItem(LS.anon) || "",
+        api: localStorage.getItem(LS.api) || "",
+      };
+    }
+
+    let supabase = null;
+    let session = null;
+    let selectedApp = null;
+
+    function initClient() {
+      const c = cfg();
+      if (c.url && c.anon) {
+        supabase = window.supabase.createClient(c.url, c.anon);
+      } else {
+        supabase = null;
+      }
+    }
+
+    function show(id, type, text) {
+      const el = document.getElementById(id);
+      el.className = "msg " + type;
+      el.textContent = text;
+    }
+
+    function clearMsg(id) {
+      const el = document.getElementById(id);
+      el.className = "msg";
+      el.textContent = "";
+    }
+
+    async function api(path, options = {}) {
+      const c = cfg();
+      if (!c.api) throw new Error("Set API Worker URL in settings");
+      const headers = { "Content-Type": "application/json", ...(options.headers || {}) };
+      if (session?.access_token) {
+        headers.Authorization = "Bearer " + session.access_token;
+      }
+      const res = await fetch(c.api + path, { ...options, headers });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const msg = body?.error?.message || body?.message || res.statusText;
+        const code = body?.error?.code || "ERROR";
+        throw new Error(code + ": " + msg);
+      }
+      return body;
+    }
+
+    async function refreshSessionUI() {
+      if (!supabase) return;
+      const { data } = await supabase.auth.getSession();
+      session = data.session;
+      const form = document.getElementById("auth-form");
+      const userBox = document.getElementById("auth-user");
+      if (session) {
+        form.classList.add("hidden");
+        userBox.classList.remove("hidden");
+        document.getElementById("user-email").textContent = session.user.email || session.user.id;
+        document.getElementById("apps-card").classList.remove("hidden");
+        await loadApps();
+      } else {
+        form.classList.remove("hidden");
+        userBox.classList.add("hidden");
+        document.getElementById("apps-card").classList.add("hidden");
+        document.getElementById("licenses-card").classList.add("hidden");
+      }
+    }
+
+    async function login() {
+      clearMsg("auth-msg");
+      if (!supabase) { show("auth-msg", "err", "Save Supabase URL + Anon key first."); return; }
+      const { error } = await supabase.auth.signInWithPassword({
+        email: document.getElementById("email").value.trim(),
+        password: document.getElementById("password").value,
+      });
+      if (error) show("auth-msg", "err", error.message);
+      else { show("auth-msg", "ok", "Logged in."); await refreshSessionUI(); }
+    }
+
+    async function register() {
+      clearMsg("auth-msg");
+      if (!supabase) { show("auth-msg", "err", "Save settings first."); return; }
+      const { error } = await supabase.auth.signUp({
+        email: document.getElementById("email").value.trim(),
+        password: document.getElementById("password").value,
+      });
+      if (error) show("auth-msg", "err", error.message);
+      else show("auth-msg", "ok", "Registered. Confirm email if required, then log in.");
+    }
+
+    async function logout() {
+      if (supabase) await supabase.auth.signOut();
+      session = null;
+      selectedApp = null;
+      await refreshSessionUI();
+    }
+
+    async function loadApps() {
+      clearMsg("apps-msg");
+      try {
+        const { data } = await api("/v1/developer/applications");
+        const tbody = document.getElementById("apps-tbody");
+        tbody.innerHTML = "";
+        (data || []).forEach((app) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML =
+            "<td>" + esc(app.name) + "</td>" +
+            "<td class=\"mono\">" + esc(app.slug) + "</td>" +
+            "<td><span class=\"badge " + app.status + "\">" + app.status + "</span></td>" +
+            "<td><button type=\"button\" class=\"secondary\" data-id=\"" + app.id + "\" data-name=\"" + esc(app.name) + "\">Licenses</button></td>";
+          tbody.appendChild(tr);
+        });
+        tbody.querySelectorAll("button[data-id]").forEach((btn) =>
+          btn.addEventListener("click", () => selectApp(btn.dataset.id, btn.dataset.name))
+        );
+      } catch (e) {
+        show("apps-msg", "err", e.message);
+      }
+    }
+
+    async function createApp() {
+      clearMsg("apps-msg");
+      const name = document.getElementById("app-name").value.trim();
+      const slug = document.getElementById("app-slug").value.trim();
+      if (!name) { show("apps-msg", "err", "Name required"); return; }
+      try {
+        await api("/v1/developer/applications", {
+          method: "POST",
+          body: JSON.stringify({ name, slug: slug || undefined }),
+        });
+        show("apps-msg", "ok", "Created.");
+        document.getElementById("app-name").value = "";
+        document.getElementById("app-slug").value = "";
+        await loadApps();
+      } catch (e) {
+        show("apps-msg", "err", e.message);
+      }
+    }
+
+    async function selectApp(id, name) {
+      selectedApp = { id, name };
+      document.getElementById("selected-app-name").textContent = name;
+      document.getElementById("licenses-card").classList.remove("hidden");
+      document.getElementById("key-reveal").classList.add("hidden");
+      await loadLicenses();
+    }
+
+    async function loadLicenses() {
+      clearMsg("lic-msg");
+      if (!selectedApp) return;
+      try {
+        const { data } = await api("/v1/developer/applications/" + selectedApp.id + "/licenses");
+        const tbody = document.getElementById("lic-tbody");
+        tbody.innerHTML = "";
+        (data || []).forEach((lic) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML =
+            "<td class=\"mono\">" + esc(lic.key_prefix) + "…</td>" +
+            "<td><span class=\"badge " + lic.status + "\">" + lic.status + "</span></td>" +
+            "<td>" + lic.current_activations + " / " + lic.max_activations + "</td>" +
+            "<td>" + new Date(lic.created_at).toLocaleString() + "</td>";
+          tbody.appendChild(tr);
+        });
+      } catch (e) {
+        show("lic-msg", "err", e.message);
+      }
+    }
+
+    async function generateLicenses() {
+      clearMsg("lic-msg");
+      if (!selectedApp) return;
+      try {
+        const { data } = await api("/v1/developer/licenses", {
+          method: "POST",
+          body: JSON.stringify({
+            application_id: selectedApp.id,
+            max_activations: parseInt(document.getElementById("lic-max").value, 10) || 1,
+            count: parseInt(document.getElementById("lic-count").value, 10) || 1,
+          }),
+        });
+        const keys = (data || []).map((l) => l.key).filter(Boolean);
+        const box = document.getElementById("key-reveal");
+        box.classList.remove("hidden");
+        box.innerHTML = "<strong>Copy these keys now — shown only once:</strong><br/>" + keys.map(esc).join("<br/>");
+        show("lic-msg", "ok", "Generated " + keys.length + " key(s).");
+        await loadLicenses();
+      } catch (e) {
+        show("lic-msg", "err", e.message);
+      }
+    }
+
+    function esc(s) {
+      return String(s)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    loadCfg();
+    initClient();
+    document.getElementById("btn-save-cfg").onclick = saveCfg;
+    document.getElementById("btn-login").onclick = login;
+    document.getElementById("btn-register").onclick = register;
+    document.getElementById("btn-logout").onclick = logout;
+    document.getElementById("btn-create-app").onclick = createApp;
+    document.getElementById("btn-gen-lic").onclick = generateLicenses;
+    refreshSessionUI();
+  </script>
+</body>
+</html>
